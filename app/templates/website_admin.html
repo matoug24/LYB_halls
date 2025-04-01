@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Website Admin{% endblock %}
+{% block content %}
+<h1>Website Admin</h1>
+
+<h2>Halls</h2>
+<ul>
+  {% for hall in halls %}
+    <li><a href="{{ url_for('main.hall_detail', slug=hall.slug) }}">{{ hall.name }}</a></li>
+  {% endfor %}
+</ul>
+
+<h2>Logs</h2>
+
+<div>
+  <h3>Hall Logs</h3>
+  <label for="hallSelect">Select Hall:</label>
+  <select id="hallSelect">
+    <option value="all">All Halls</option>
+    {% for hall in halls %}
+      <option value="{{ hall.id }}">{{ hall.name }}</option>
+    {% endfor %}
+  </select>
+  <table class="table table-bordered" id="hallLogsTable">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Username</th>
+        <th>Action</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr data-hall-id="{{ log.hall_id }}">
+          <td>{{ log.timestamp }}</td>
+          <td>{{ log.username }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.details }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h3>User Logs</h3>
+  <label for="userSelect">Select User:</label>
+  <select id="userSelect">
+    <option value="all">All Users</option>
+    {% for user in users %}
+      <option value="{{ user.id }}">{{ user.username }}</option>
+    {% endfor %}
+  </select>
+  <table class="table table-bordered" id="userLogsTable">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Username</th>
+        <th>Action</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr data-user-id="{{ log.user_id }}">
+          <td>{{ log.timestamp }}</td>
+          <td>{{ log.username }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.details }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.getElementById('hallSelect').addEventListener('change', function(){
+    var selected = this.value;
+    var rows = document.querySelectorAll('#hallLogsTable tbody tr');
+    rows.forEach(function(row){
+        if(selected === 'all' || row.getAttribute('data-hall-id') === selected){
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+document.getElementById('userSelect').addEventListener('change', function(){
+    var selected = this.value;
+    var rows = document.querySelectorAll('#userLogsTable tbody tr');
+    rows.forEach(function(row){
+        if(selected === 'all' || row.getAttribute('data-user-id') === selected){
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

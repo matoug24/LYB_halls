@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block navbar %}All Halls{% endblock %}
+{% block content %}
+<h1>Welcome to Hall Booking</h1>
+<div class="list-group">
+  {% for hall in halls %}
+    <a href="{{ url_for('main.hall_detail', slug=slug) }}" class="list-group-item list-group-item-action">
+      {{ hall.name }}
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

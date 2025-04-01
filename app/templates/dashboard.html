@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block navbar %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard for {{ current_user.username }} ({{ current_user.role }})</h1>
+{% if current_user.role == 'owner' %}
+  <a href="{{ url_for('main.edit_hall') }}" class="btn btn-warning mb-3">Edit Hall</a>
+{% endif %}
+<a href="{{ url_for('main.change_password') }}" class="btn btn-secondary mb-3 ml-2">Change Password</a>
+
+<h2>Approved Bookings</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Time Slot</th>
+      <th>User Name</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in approved_bookings %}
+      <tr>
+        <td>{{ booking.booking_date }}</td>
+        <td>{{ booking.time_slot }}</td>
+        <td>{{ booking.user_name }}</td>
+        <td>{{ booking.created_at }}</td>
+        <td>
+          <a href="{{ url_for('main.edit_booking', booking_id=booking.id) }}" class="btn btn-sm btn-info">Edit</a>
+          <a href="{{ url_for('main.cancel_booking', booking_id=booking.id) }}" class="btn btn-sm btn-danger">Cancel</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Pending Bookings</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Time Slot</th>
+      <th>User Name</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in pending_bookings %}
+      <tr>
+        <td>{{ booking.booking_date }}</td>
+        <td>{{ booking.time_slot }}</td>
+        <td>{{ booking.user_name }}</td>
+        <td>{{ booking.created_at }}</td>
+        <td>
+          <a href="{{ url_for('main.edit_booking', booking_id=booking.id) }}" class="btn btn-sm btn-info">Edit</a>
+          <a href="{{ url_for('main.cancel_booking', booking_id=booking.id) }}" class="btn btn-sm btn-danger">Cancel</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if current_user.role == 'owner' %}
+<h2>Logs</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Timestamp</th>
+      <th>Username</th>
+      <th>Action</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+      <tr>
+        <td>{{ log.timestamp }}</td>
+        <td>{{ log.username }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.details }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

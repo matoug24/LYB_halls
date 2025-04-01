@@ -1,0 +1,5 @@
+venv/
+*.JPEG
+*.jpg
+*.pyc
+instance/halls.db
