@@ -7,7 +7,7 @@ from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.orm import joinedload
-from sqlalchemy import or_
+# from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from PIL import Image
 from app import db, cache, login_manager
@@ -42,61 +42,18 @@ def log_action(hall_id, user, action, details=""):
     db.session.add(log_entry)
     current_app.logger.info(f"Log action: Hall {hall_id}, User {user.username}, Action: {action}, Details: {details}")
 
-# def get_booking_status(hall, date, timeslot):
-#     booking = Booking.query.filter_by(hall_id=hall.id, booking_date=date, time_slot=timeslot).first()
-#     if booking:
-#         if booking.status == 'approved':
-#             return 'red'
-#         elif booking.status == 'pending':
-#             return 'orange'
-#     return 'green'
 
-def generate_month_calendar(hall, year, month, timeslot):
-    # Determine first and last day of the month
+def generate_month_calendar( year, month, timeslot, booking_map):
     first_day = datetime(year, month, 1).date()
     last_day = datetime(year, month, calendar.monthrange(year, month)[1]).date()
 
-    # Pre-fetch bookings for the month and timeslot
-    bookings = Booking.query.filter(
-        Booking.hall_id == hall.id,
-        Booking.booking_date >= first_day,
-        Booking.booking_date <= last_day,
-        Booking.time_slot == timeslot
-    ).all()
     booking_status_map = {}
-    for booking in bookings:
-        if booking.status == 'approved':
-            booking_status_map[booking.booking_date] = 'red'
-        elif booking.status == 'pending' and booking.booking_date not in booking_status_map:
-            booking_status_map[booking.booking_date] = 'orange'
-
-    # Pre-parse pricing data once
-    if timeslot == 'morning':
-        pricing_str = hall.morning_pricing
-        price_key = 'morning_prices'
-    else:
-        pricing_str = hall.evening_pricing
-        price_key = 'evening_prices'
-    try:
-        pricing_data = json.loads(pricing_str) if pricing_str else {}
-    except Exception:
-        pricing_data = {}
-
-    # Build lookup for override prices
-    override_lookup = {}
-    for override in pricing_data.get("overrides", []):
-        try:
-            o_date = datetime.strptime(override["date"], "%Y-%m-%d").date()
-            if "price" in override:
-                override_lookup[o_date] = override["price"]
-            elif "prices" in override:
-                override_lookup[o_date] = override["prices"]
-            elif timeslot == 'morning' and "morning_price" in override:
-                override_lookup[o_date] = override["morning_price"]
-            elif timeslot == 'evening' and "evening_price" in override:
-                override_lookup[o_date] = override["evening_price"]
-        except Exception:
-            continue
+    for (date, slot), status in booking_map.items():
+        if slot == timeslot and first_day <= date <= last_day:
+            if status == 'approved':
+                booking_status_map[date] = 'red'
+            elif status == 'pending' and date not in booking_status_map:
+                booking_status_map[date] = 'orange'
 
     cal = calendar.Calendar(firstweekday=0)
     month_days = cal.monthdatescalendar(year, month)
@@ -108,28 +65,7 @@ def generate_month_calendar(hall, year, month, timeslot):
                 week_data.append(None)
             else:
                 status = booking_status_map.get(day, 'green')
-                if day in override_lookup:
-                    price = override_lookup[day]
-                else:
-                    price = "N/A"
-                    for interval in pricing_data.get("intervals", []):
-                        try:
-                            start_date = datetime.strptime(interval["start_date"], "%Y-%m-%d").date()
-                            end_date = datetime.strptime(interval["end_date"], "%Y-%m-%d").date()
-                        except Exception:
-                            continue
-                        if start_date <= day <= end_date:
-                            day_index = day.weekday()
-                            if "prices" in interval:
-                                prices_list = interval["prices"]
-                            elif price_key in interval:
-                                prices_list = interval[price_key]
-                            else:
-                                prices_list = []
-                            if len(prices_list) == 7:
-                                price = prices_list[day_index]
-                            break
-                week_data.append({'day': day.day, 'date': str(day), 'status': status, 'price': price})
+                week_data.append({'day': day.day, 'date': str(day), 'status': status})
         weeks.append(week_data)
     return {
         "year": year,
@@ -150,7 +86,7 @@ def expire_pending_bookings():
             Booking.created_at < datetime.now(timezone.utc) - timedelta(days=1)
         ).update({"status": "cancelled"}, synchronize_session=False)
         db.session.commit()
-        current_app.logger.info(f"Expired {expired_count} pending bookings on {today_date}")
+        # current_app.logger.info(f"Expired {expired_count} pending bookings on {today_date}")
         LAST_CLEANUP_DATE = today_date
 
 @login_manager.user_loader
@@ -207,14 +143,14 @@ def create_hall_admin():
                 evening_highlights=json.dumps([h.strip() for h in form.evening_highlights.data.split(',')]),
                 morning_discount=form.morning_discount.data,
                 evening_discount=form.evening_discount.data,
-                morning_pricing=form.morning_pricing.data,
-                evening_pricing=form.evening_pricing.data,
+                # morning_pricing=form.morning_pricing.data,
+                # evening_pricing=form.evening_pricing.data,
                 instructions=form.instructions.data,
                 phone=form.phone.data,
                 email=form.email.data,
                 latitude=float(form.latitude.data),
                 longitude=float(form.longitude.data),
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             picture_filenames = []
             if form.pictures.data:
@@ -251,11 +187,10 @@ def create_hall_admin():
         viewer.set_password(default_password)
 
         users = [ owner, manager, viewer]
-        db.session.bulk_save_objects(users)
-        db.session.commit()
+        db.session.add_all(users)
+        db.session.flush()  # Get owner.id populated
         
         hall.admin_id = owner.id
-        db.session.commit()
 
         log_action(hall.id, current_user, "Hall Created", f"Hall '{hall.name}' created with users: {owner.username}, {manager.username}, {viewer.username}.")
         db.session.commit()
@@ -270,16 +205,33 @@ def hall_detail(slug):
     hall = Hall.query.options(joinedload(Hall.bookings)).filter_by(slug=slug).first_or_404()
     pictures = json.loads(hall.pictures) if hall.pictures else []
     today = datetime.today().date()
+    start_date = today.replace(day=1)
+    end_date = (start_date + timedelta(days=365)).replace(day=1)
+
+    bookings = Booking.query.filter(
+        Booking.hall_id == hall.id,
+        Booking.booking_date >= start_date,
+        Booking.booking_date < end_date,
+        Booking.status.in_(["approved", "pending"])
+    ).all()
+
+    # Build booking_map: {(date, time_slot): status}
+    booking_map = {}
+    for b in bookings:
+        booking_map[(b.booking_date, b.time_slot)] = b.status
+    
     calendars = {"morning": [], "evening": []}
-    # Generate calendars for 12 months starting from the current month
+
     for i in range(12):
-        month_date = (today.replace(day=1) + timedelta(days=32 * i)).replace(day=1)
+        month_date = (start_date + timedelta(days=32 * i)).replace(day=1)
         year = month_date.year
         month = month_date.month
-        calendars["morning"].append(generate_month_calendar(hall, year, month, "morning"))
-        calendars["evening"].append(generate_month_calendar(hall, year, month, "evening"))
+        calendars["morning"].append(generate_month_calendar( year, month, "morning", booking_map))
+        calendars["evening"].append(generate_month_calendar( year, month, "evening", booking_map))
+
     morning_highlights = json.loads(hall.morning_highlights) if hall.morning_highlights else []
     evening_highlights = json.loads(hall.evening_highlights) if hall.evening_highlights else []
+
     return render_template('hall_detail.html', hall=hall, pictures=pictures,
                            calendars=calendars,
                            morning_description=hall.morning_description,

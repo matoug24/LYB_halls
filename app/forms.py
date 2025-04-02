@@ -30,8 +30,8 @@ class CreateHallForm(FlaskForm):
     evening_highlights = TextAreaField('Evening Highlights (comma separated)', validators=[DataRequired()])
     morning_discount = TextAreaField('Morning Discount Info', validators=[DataRequired()])
     evening_discount = TextAreaField('Evening Discount Info', validators=[DataRequired()])
-    morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
-    evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])  # Hidden field filled by JS
+    # morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
+    # evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])  # Hidden field filled by JS
     instructions = TextAreaField('Instructions (displayed after booking)', validators=[DataRequired()])
     phone = StringField('Contact Phone', validators=[DataRequired()])
     email = StringField('Contact Email', validators=[DataRequired()])
@@ -49,8 +49,8 @@ class EditHallForm(FlaskForm):
     evening_highlights = TextAreaField('Evening Highlights (comma separated)', validators=[DataRequired()])
     morning_discount = TextAreaField('Morning Discount Info', validators=[DataRequired()])
     evening_discount = TextAreaField('Evening Discount Info', validators=[DataRequired()])
-    morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
-    evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])
+    # morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
+    # evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])
     instructions = TextAreaField('Instructions (displayed after booking)', validators=[DataRequired()])
     phone = StringField('Contact Phone', validators=[DataRequired()])
     email = StringField('Contact Email', validators=[DataRequired()])
