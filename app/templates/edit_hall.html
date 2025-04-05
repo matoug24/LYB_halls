@@ -10,8 +10,12 @@
     {{ form.name.label }} {{ form.name(class="form-control") }}
   </div>
   <div class="form-group">
-    {{ form.slug.label }} {{ form.slug(class="form-control") }}
+    {{ form.admin_name.label }} {{ form.admin_name(class="form-control") }}
   </div>
+  <div class="form-group">
+    {{ form.admin_phone.label }} {{ form.admin_phone(class="form-control") }}
+  </div>
+
   <!-- Descriptions, highlights, discounts, instructions -->
   <div class="form-group">
     {{ form.morning_description.label }} {{ form.morning_description(class="form-control") }}
@@ -31,17 +35,19 @@
   <div class="form-group">
     {{ form.evening_discount.label }} {{ form.evening_discount(class="form-control") }}
   </div>
+  
+  <!-- Separate price fields -->
+  <div class="form-group">
+    {{ form.morning_pricing.label }} {{ form.morning_pricing(class="form-control") }}
+  </div>
+  <div class="form-group">
+    {{ form.evening_pricing.label }} {{ form.evening_pricing(class="form-control") }}
+  </div>
+
   <div class="form-group">
     {{ form.instructions.label }} {{ form.instructions(class="form-control") }}
   </div>
-  <!-- Pricing sections (same as creation) -->
-  <h4>Pricing Intervals</h4>
-  <div id="pricingIntervals"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="addInterval">New Interval</button>
-  <h4>Override Prices</h4>
-  <div id="overridePrices"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="addOverride">New Override</button>
-  <input type="hidden" name="pricing" id="pricingData">
+
   <!-- Contact & Location -->
   <div class="form-group">
     {{ form.phone.label }} {{ form.phone(class="form-control") }}
@@ -56,24 +62,31 @@
     {{ form.longitude.label }} {{ form.longitude(class="form-control", readonly=True) }}
   </div>
   <div id="locationMap"></div>
+
   <!-- Picture management: show current pictures with delete checkboxes -->
   <h4>Current Pictures</h4>
-  <div class="row">
-    {% for pic in hall_pics %}
-      <div class="col-md-3 text-center">
-        <img src="{{ url_for('static', filename='uploads/halls/' ~ pic) }}" class="img-fluid mb-2">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="delete_pictures" value="{{ pic }}" id="del_{{ loop.index }}">
-          <label class="form-check-label" for="del_{{ loop.index }}">Delete</label>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-  <!-- New pictures upload -->
-  <div class="form-group">
-    {{ form.pictures.label }} {{ form.pictures(class="form-control-file") }}
-  </div>
-  <button type="submit" class="btn btn-primary" onclick="preparePricingData()">Save Changes</button>
+<div class="row" id="existing-pictures">
+  {% for pic in hall_pics %}
+    <div class="col-md-3 text-center image-block" data-filename="{{ pic }}">
+      <img src="{{ url_for('static', filename='uploads/halls/' ~ pic) }}" class="img-fluid mb-2">
+      <button type="button" class="btn btn-sm btn-danger delete-existing" data-pic="{{ pic }}">🗑 Remove</button>
+      <!-- Hidden input for tracking deletions -->
+      <input type="hidden" name="delete_pictures" value="{{ pic }}" disabled>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- New picture uploads -->
+<div class="form-group mt-4">
+  {{ form.pictures.label }} 
+  {{ form.pictures(class="form-control-file", id="picturesInput") }}
+</div>
+
+<h4>New Uploads Preview</h4>
+<div id="new-picture-preview" class="row"></div>
+
+<button type="submit" class="btn btn-primary" >Save Changes</button>
+
 </form>
 {% endblock %}
 
@@ -95,82 +108,38 @@ map.on('click', function(e) {
   if(marker){ marker.setLatLng(e.latlng); } else { marker = L.marker(e.latlng).addTo(map); }
 });
 
-// Pricing intervals and override code (same as in create_hall)
-document.getElementById('addInterval').addEventListener('click', function(){
-  var container = document.getElementById('pricingIntervals');
-  var div = document.createElement('div');
-  div.className = "pricing-interval border p-2 mb-2";
-  div.innerHTML = `
-    <label>Interval Start Date:</label><input type="date" class="form-control interval-start" required>
-    <label>Interval End Date:</label><input type="date" class="form-control interval-end" required>
-    <div class="mt-2"><strong>Morning Prices:</strong></div>
-    <div class="row">
-      <div class="col"><input type="number" step="0.01" placeholder="Mon" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Tue" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Wed" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Thu" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Fri" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sat" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sun" class="form-control price-morning" required></div>
-    </div>
-    <div class="mt-2"><strong>Evening Prices:</strong></div>
-    <div class="row">
-      <div class="col"><input type="number" step="0.01" placeholder="Mon" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Tue" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Wed" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Thu" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Fri" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sat" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sun" class="form-control price-evening" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-interval">Remove Interval</button>
-  `;
-  container.appendChild(div);
-});
-document.getElementById('pricingIntervals').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-interval')){
-    e.target.parentNode.remove();
-  }
-});
-document.getElementById('addOverride').addEventListener('click', function(){
-  var container = document.getElementById('overridePrices');
-  var div = document.createElement('div');
-  div.className = "override-price border p-2 mb-2";
-  div.innerHTML = `
-    <label>Date:</label><input type="date" class="form-control override-date" required>
-    <div class="row mt-2">
-      <div class="col"><input type="number" step="0.01" placeholder="Morning Price" class="form-control override-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Evening Price" class="form-control override-evening" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-override">Remove Override</button>
-  `;
-  container.appendChild(div);
-});
-document.getElementById('overridePrices').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-override')){
-    e.target.parentNode.remove();
-  }
-});
-function preparePricingData(){
-  var intervals = [];
-  document.querySelectorAll('.pricing-interval').forEach(function(div){
-    var start = div.querySelector('.interval-start').value;
-    var end = div.querySelector('.interval-end').value;
-    var morningPrices = [];
-    div.querySelectorAll('.price-morning').forEach(function(input){ morningPrices.push(parseFloat(input.value)); });
-    var eveningPrices = [];
-    div.querySelectorAll('.price-evening').forEach(function(input){ eveningPrices.push(parseFloat(input.value)); });
-    intervals.push({ start_date: start, end_date: end, morning_prices: morningPrices, evening_prices: eveningPrices });
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Remove existing picture logic
+  document.querySelectorAll(".delete-existing").forEach(button => {
+    button.addEventListener("click", function () {
+      const block = this.closest(".image-block");
+      const hiddenInput = block.querySelector("input[type='hidden']");
+      hiddenInput.disabled = false;  // Enable the hidden input for deletion
+      block.style.display = "none"; // Hide the image visually
+    });
   });
-  var overrides = [];
-  document.querySelectorAll('.override-price').forEach(function(div){
-    var date = div.querySelector('.override-date').value;
-    var morning = parseFloat(div.querySelector('.override-morning').value);
-    var evening = parseFloat(div.querySelector('.override-evening').value);
-    overrides.push({ date: date, morning_price: morning, evening_price: evening });
+
+  // Show previews for new image uploads
+  document.getElementById("picturesInput").addEventListener("change", function () {
+    const previewContainer = document.getElementById("new-picture-preview");
+    previewContainer.innerHTML = ""; // Clear previous previews
+
+    Array.from(this.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const col = document.createElement("div");
+        col.className = "col-md-3 text-center";
+        col.innerHTML = `
+          <img src="${e.target.result}" class="img-fluid mb-2 rounded">
+          <p class="small">${file.name}</p>
+        `;
+        previewContainer.appendChild(col);
+      };
+      reader.readAsDataURL(file);
+    });
   });
-  var pricingData = { intervals: intervals, overrides: overrides };
-  document.getElementById('pricingData').value = JSON.stringify(pricingData);
-}
+});
+
 </script>
 {% endblock %}

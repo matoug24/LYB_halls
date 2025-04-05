@@ -12,6 +12,14 @@
   <div class="form-group">
     {{ form.slug.label }} {{ form.slug(class="form-control") }}
   </div>
+  <div class="form-group">
+    {{ form.admin_name.label }} {{ form.admin_name(class="form-control") }}
+  </div>
+  <div class="form-group">
+    {{ form.admin_phone.label }} {{ form.admin_phone(class="form-control") }}
+  </div>
+
+
   <!-- Descriptions and highlights -->
   <div class="form-group">
     {{ form.morning_description.label }} {{ form.morning_description(class="form-control") }}
@@ -32,27 +40,13 @@
   <div class="form-group">
     {{ form.evening_discount.label }} {{ form.evening_discount(class="form-control") }}
   </div>
-  <!-- Pricing intervals section -->
-  <h4>Morning Pricing Intervals</h4>
-  <div id="m_pricingIntervals"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="m_addInterval">New Interval</button>
-  <!-- Override Prices section -->
-  <h4>Override Prices (for specific dates)</h4>
-  <div id="m_overridePrices"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="m_addOverride">New Override</button>
-  <!-- Hidden field to hold final pricing JSON -->
-  <input type="hidden" name="morning_pricing" id="m_pricingData">
-
-  <!-- Pricing intervals section -->
-  <h4>Evening Pricing Intervals</h4>
-  <div id="e_pricingIntervals"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="e_addInterval">New Interval</button>
-  <!-- Override Prices section -->
-  <h4>Override Prices (for specific dates)</h4>
-  <div id="e_overridePrices"></div>
-  <button type="button" class="btn btn-secondary mb-3" id="e_addOverride">New Override</button>
-  <!-- Hidden field to hold final pricing JSON -->
-  <input type="hidden" name="evening_pricing" id="e_pricingData">
+  <!-- Separate price fields -->
+  <div class="form-group">
+    {{ form.morning_pricing.label }} {{ form.morning_pricing(class="form-control") }}
+  </div>
+  <div class="form-group">
+    {{ form.evening_pricing.label }} {{ form.evening_pricing(class="form-control") }}
+  </div>
   
   <!-- Instructions -->
   <div class="form-group">
@@ -78,15 +72,18 @@
   <div class="form-group">
     {{ form.pictures.label }} {{ form.pictures(class="form-control-file") }}
   </div>
-  <button type="submit" class="btn btn-primary" onclick="preparePricingData()">{{ form.submit.label }}</button>
+
+  <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
 </form>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
+
 <!-- Leaflet for location map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
 <script>
 // Initialize map for location selection
 var map = L.map('locationMap').setView([0, 0], 2);
@@ -102,142 +99,5 @@ map.on('click', function(e) {
   if(marker){ marker.setLatLng(e.latlng); } else { marker = L.marker(e.latlng).addTo(map); }
 });
 
-// Dynamic Pricing Intervals
-document.getElementById('m_addInterval').addEventListener('click', function(){
-  var container = document.getElementById('m_pricingIntervals');
-  var div = document.createElement('div');
-  div.className = "m_pricing-interval border p-2 mb-2";
-  div.innerHTML = `
-    <label>Interval Start Date:</label><input type="date" class="form-control interval-start" required>
-    <label>Interval End Date:</label><input type="date" class="form-control interval-end" required>
-    <div class="mt-2"><strong>Morning Prices:</strong></div>
-    <div class="row">
-      <div class="col"><input type="number" step="0.01" placeholder="Mon" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Tue" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Wed" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Thu" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Fri" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sat" class="form-control price-morning" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sun" class="form-control price-morning" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-interval">Remove Interval</button>
-  `;
-  container.appendChild(div);
-});
-
-// Dynamic Pricing Intervals
-document.getElementById('e_addInterval').addEventListener('click', function(){
-  var container = document.getElementById('e_pricingIntervals');
-  var div = document.createElement('div');
-  div.className = "e_pricing-interval border p-2 mb-2";
-  div.innerHTML = `
-    <label>Interval Start Date:</label><input type="date" class="form-control interval-start" required>
-    <label>Interval End Date:</label><input type="date" class="form-control interval-end" required>
-    <div class="mt-2"><strong>Evening Prices:</strong></div>
-    <div class="row">
-      <div class="col"><input type="number" step="0.01" placeholder="Mon" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Tue" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Wed" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Thu" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Fri" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sat" class="form-control price-evening" required></div>
-      <div class="col"><input type="number" step="0.01" placeholder="Sun" class="form-control price-evening" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-interval">Remove Interval</button>
-  `;
-  container.appendChild(div);
-});
-
-
-document.getElementById('e_pricingIntervals').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-interval')){
-    e.target.parentNode.remove();
-  }
-});
-
-document.getElementById('m_pricingIntervals').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-interval')){
-    e.target.parentNode.remove();
-  }
-});
-
-// Dynamic Override Prices section
-document.getElementById('m_addOverride').addEventListener('click', function(){
-  var container = document.getElementById('m_overridePrices');
-  var div = document.createElement('div');
-  div.className = "m_override-price border p-2 mb-2";
-  div.innerHTML = `
-    <label>Date:</label><input type="date" class="form-control override-date" required>
-    <div class="row mt-2">
-      <div class="col"><input type="number" step="0.01" placeholder="Morning Price" class="form-control override-morning" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-override">Remove Override</button>
-  `;
-  container.appendChild(div);
-});
-document.getElementById('m_overridePrices').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-override')){
-    e.target.parentNode.remove();
-  }
-});
-
-// Dynamic Override Prices section
-document.getElementById('e_addOverride').addEventListener('click', function(){
-  var container = document.getElementById('e_overridePrices');
-  var div = document.createElement('div');
-  div.className = "e_override-price border p-2 mb-2";
-  div.innerHTML = `
-    <label>Date:</label><input type="date" class="form-control override-date" required>
-    <div class="row mt-2">
-      <div class="col"><input type="number" step="0.01" placeholder="Evening Price" class="form-control override-evening" required></div>
-    </div>
-    <button type="button" class="btn btn-danger btn-sm mt-2 remove-override">Remove Override</button>
-  `;
-  container.appendChild(div);
-});
-document.getElementById('e_overridePrices').addEventListener('click', function(e){
-  if(e.target && e.target.classList.contains('remove-override')){
-    e.target.parentNode.remove();
-  }
-});
-
-
-
-
-function preparePricingData(){
-  var intervals = [];
-  document.querySelectorAll('.m_pricing-interval').forEach(function(div){
-    var start = div.querySelector('.interval-start').value;
-    var end = div.querySelector('.interval-end').value;
-    var morningPrices = [];
-    div.querySelectorAll('.price-morning').forEach(function(input){ morningPrices.push(parseFloat(input.value)); });
-    intervals.push({ start_date: start, end_date: end, prices: morningPrices});
-  });
-  var overrides = [];
-  document.querySelectorAll('.m_override-price').forEach(function(div){
-    var date = div.querySelector('.override-date').value;
-    var morning = parseFloat(div.querySelector('.override-morning').value);
-    overrides.push({ date: date, prices: morning });
-  });
-  var pricingData = { intervals: intervals, overrides: overrides };
-  document.getElementById('m_pricingData').value = JSON.stringify(pricingData);
-
-  var intervals = [];
-  document.querySelectorAll('.e_pricing-interval').forEach(function(div){
-    var start = div.querySelector('.interval-start').value;
-    var end = div.querySelector('.interval-end').value;
-    var eveningPrices = [];
-    div.querySelectorAll('.price-evening').forEach(function(input){ eveningPrices.push(parseFloat(input.value)); });
-    intervals.push({ start_date: start, end_date: end, prices: eveningPrices});
-  });
-  var overrides = [];
-  document.querySelectorAll('.e_override-price').forEach(function(div){
-    var date = div.querySelector('.override-date').value;
-    var evening = parseFloat(div.querySelector('.override-evening').value);
-    overrides.push({ date: date, prices: evening });
-  });
-  var pricingData = { intervals: intervals, overrides: overrides };
-  document.getElementById('e_pricingData').value = JSON.stringify(pricingData);
-}
 </script>
 {% endblock %}

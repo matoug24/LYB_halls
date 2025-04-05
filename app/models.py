@@ -7,6 +7,8 @@ from flask_login import UserMixin
 class Hall(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    admin_name = db.Column(db.String(100), nullable=True)
+    admin_phone = db.Column(db.String(20), nullable=True)
     slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     morning_description = db.Column(db.Text, nullable=True)
@@ -15,8 +17,8 @@ class Hall(db.Model):
     evening_highlights = db.Column(db.Text, nullable=True)  # JSON list
     morning_discount = db.Column(db.Text, nullable=True)
     evening_discount = db.Column(db.Text, nullable=True)
-    # morning_pricing = db.Column(db.Text, nullable=True)  # JSON from dynamic pricing intervals/overrides
-    # evening_pricing = db.Column(db.Text, nullable=True)  # JSON from dynamic pricing intervals/overrides
+    morning_pricing = db.Column(db.Text, nullable=True)  
+    evening_pricing = db.Column(db.Text, nullable=True)  
     instructions = db.Column(db.Text, nullable=True)
     pictures = db.Column(db.Text, nullable=True)  # JSON array of filenames
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))

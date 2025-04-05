@@ -5,7 +5,7 @@
 <h1>Welcome to Hall Booking</h1>
 <div class="list-group">
   {% for hall in halls %}
-    <a href="{{ url_for('main.hall_detail', slug=slug) }}" class="list-group-item list-group-item-action">
+    <a href="{{ url_for('main.hall_detail', slug=hall.slug) }}" class="list-group-item list-group-item-action">
       {{ hall.name }}
     </a>
   {% endfor %}

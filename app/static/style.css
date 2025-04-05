@@ -1,0 +1,810 @@
+/* === style.css === */
+
+/* --- Variable Definitions --- */
+:root {
+    --primary-color: #2c3e50; /* Dark Blue-Gray */
+    --secondary-color: #3498db; /* Bright Blue */
+    --accent-color: #e67e22; /* Orange */
+    --light-bg: #ecf0f1; /* Light Gray */
+    --dark-text: #34495e; /* Dark Gray-Blue */
+    --light-text: #ffffff;
+    --border-color: #bdc3c7; /* Medium Gray */
+    --success-bg: #dff0d8;
+    --success-text: #3c763d;
+    --success-border: #d6e9c6;
+    --booked-color: #f8d7da; /* Light red for booked */
+    --booked-text: #721c24;
+    --available-color: #d4edda; /* Light green for available */
+    --available-text: #155724;
+    --calendar-border: #dee2e6;
+
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+    --base-font-size: 16px;
+
+    --shadow-light: 0 2px 5px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-dark: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Basic Reset & Defaults --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Adjust for fixed header height */
+    font-size: var(--base-font-size);
+}
+
+body {
+    font-family: var(--font-body);
+    line-height: 1.7;
+    color: var(--dark-text);
+    background-color: var(--light-text); /* White background for cleaner look */
+    padding-top: 70px; /* Match initial header height - adjust if needed based on final nav */
+}
+
+.container {
+    max-width: 1200px; /* Slightly wider container */
+    margin: 0 auto;
+    padding: 0 25px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.8em;
+}
+
+h1 { font-size: 2.8rem; line-height: 1.2; }
+h2 { font-size: 2.2rem; text-align: center; margin-bottom: 50px; }
+h3 { font-size: 1.6rem; color: var(--secondary-color); } /* Adjusted color */
+
+p { margin-bottom: 1rem; }
+a { color: var(--secondary-color); text-decoration: none; transition: color 0.3s ease; }
+a:hover, a:focus { color: var(--accent-color); }
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* --- Header & Navbar --- */
+.navbar {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-medium);
+    transition: padding 0.3s ease;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    color: var(--light-text);
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.navbar .nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.navbar .nav-links li {
+    margin-left: 25px;
+}
+
+.navbar .nav-links a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar .nav-links a:hover,
+.navbar .nav-links a:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--light-text);
+}
+
+/* --- Sections General Styling --- */
+section {
+    padding: 80px 0;
+    overflow: hidden; /* Prevent horizontal scrollbars from animations/shadows */
+}
+
+section:nth-of-type(even) {
+     background-color: var(--light-bg); /* Alternate section backgrounds for visual separation */
+}
+
+/* --- Hero Section & Carousel --- */
+.hero-section {
+    position: relative; /* Needed for absolute positioning of content and overlay */
+    height: 75vh; /* Viewport height */
+    min-height: 500px;
+    padding: 0; /* Remove padding to let carousel fill */
+    display: flex; /* Use flex for vertical alignment of content */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    text-align: center;
+    color: var(--light-text);
+}
+
+
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out; /* Slower fade transition */
+    background-color: var(--primary-color); /* Fallback background */
+}
+
+
+
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for text contrast */
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative; /* Position above overlay */
+    z-index: 3;
+    max-width: 800px;
+    padding: 20px; /* Add padding inside content box */
+}
+
+.hero-section h1 {
+    font-size: 3.5rem; /* Larger heading */
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--light-text);
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.5); /* Text shadow for readability */
+}
+
+.hero-section p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 14px 35px;
+    border: none;
+    border-radius: 30px; /* Rounded buttons */
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow-light);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-primary { /* Main action button style */
+     background-color: var(--secondary-color);
+     color: var(--light-text);
+}
+.btn-primary:hover {
+     background-color: #2980b9; /* Darker blue */
+}
+
+.btn-accent { /* Hero button style */
+     background-color: var(--accent-color);
+     color: var(--light-text);
+}
+.btn-accent:hover {
+     background-color: #d35400; /* Darker orange */
+}
+
+/* --- Halls Section --- */
+.halls-section {
+     background-color: var(--light-text); /* Reset background for this specific section if needed */
+}
+.hall-gallery {
+    /* Default grid, handles one or many items */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+}
+/* Style for specifically two halls, centered */
+.hall-gallery-two {
+    display: grid;
+    /* Use 1fr for flexible columns that share space */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    max-width: 900px; /* Limit width so two items don't stretch too much */
+    margin: 0 auto; /* Center the grid container */
+}
+.hall-item {
+    background-color: #fff;
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex; /* Use flex for better structure */
+    flex-direction: column;
+}
+
+.hall-item:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-dark);
+}
+
+.hall-image-container {
+    height: 220px; /* Fixed height for image consistency */
+    overflow: hidden;
+}
+
+.hall-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.hall-item:hover img {
+    transform: scale(1.05); /* Subtle zoom on hover */
+}
+
+.hall-content {
+    padding: 25px; /* More padding */
+    flex-grow: 1; /* Allow content to fill space */
+    display: flex;
+    flex-direction: column;
+}
+
+.hall-content h3 {
+    margin-bottom: 10px;
+}
+
+.hall-content p {
+    font-size: 0.95rem;
+    color: #555;
+    flex-grow: 1; /* Push price to bottom */
+}
+.hall-content p.capacity {
+    font-weight: 500;
+    color: var(--dark-text);
+    margin-bottom: 15px;
+}
+.hall-content p.price {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-top: 15px; /* Space above price */
+    margin-bottom: 0; /* Remove bottom margin */
+    flex-grow: 0; /* Don't let price grow */
+}
+
+
+/* --- Availability Section & Calendar Styles --- */
+.availability-section {
+    background-color: var(--light-bg); /* Matches other even sections */
+}
+
+.calendar-controls {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.calendar-controls label {
+    margin-right: 10px;
+    font-weight: 500;
+    color: var(--dark-text);
+}
+
+.calendar-controls select {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    min-width: 180px;
+    cursor: pointer;
+}
+
+#calendar-container {
+    max-width: 700px; /* Adjust as needed */
+    margin: 0 auto;
+    background-color: #fff;
+    border: 1px solid var(--calendar-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-light);
+    overflow: hidden; /* Ensure border radius applies */
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: var(--light-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.calendar-header button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#month-year {
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f8f9fa;
+    border-bottom: 1px solid var(--calendar-border);
+}
+
+.calendar-weekdays div {
+    text-align: center;
+    padding: 10px 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px; /* Creates thin lines between cells */
+    background-color: var(--calendar-border); /* Background color shows through gaps */
+}
+
+.calendar-day {
+    padding: 15px 5px; /* More vertical padding */
+    text-align: center;
+    min-height: 70px; /* Minimum height for cells */
+    background-color: #fff;
+    font-size: 0.95rem;
+    position: relative;
+    cursor: default; /* Default cursor */
+    transition: background-color 0.2s;
+}
+
+.calendar-day.other-month {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+}
+
+.calendar-day.available {
+    background-color: var(--available-color);
+    color: var(--available-text);
+    font-weight: 500;
+}
+/* Hover effect for available days (optional) */
+/* .calendar-day.available:hover {
+    background-color: #c3e6cb;
+} */
+
+.calendar-day.booked {
+    background-color: var(--booked-color);
+    color: var(--booked-text);
+    font-weight: 500;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.calendar-day.current-day span { /* Style the number within */
+    background-color: var(--secondary-color);
+    color: var(--light-text);
+    border-radius: 50%;
+    padding: 4px 7px;
+    display: inline-block;
+    line-height: 1;
+}
+
+
+/* --- Booking Section --- */
+/* .booking-section {
+     /* If it's an odd section and you want alternating bg, it will be white based on default section styles */
+     /* If you want light gray, add: background-color: var(--light-bg); */
+/* } */ 
+
+#booking-form {
+    max-width: 800px; /* Wider form */
+    margin: 0 auto;
+    background: var(--light-text);
+    padding: 40px; /* More padding */
+    border-radius: 12px;
+    box-shadow: var(--shadow-dark);
+}
+
+.form-grid { /* Grid layout for form */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 25px;
+}
+
+.form-group {
+    margin-bottom: 0; /* Remove default bottom margin as grid gap handles it */
+}
+
+.form-group-span-2 { /* Class to make an element span both columns */
+    grid-column: span 2;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600; /* Bolder labels */
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 14px; /* Increased padding */
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Focus indicator */
+}
+
+.form-group select {
+    appearance: none;
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%233498db" viewBox="0 0 16 16"%3E%3Cpath fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/%3E%3C/svg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px 12px;
+    cursor: pointer;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.btn-submit { /* Specific style for submit button */
+    grid-column: span 2; /* Make button span columns */
+    width: auto; /* Let button size naturally or set max-width */
+    min-width: 200px;
+    margin: 20px auto 0 auto; /* Center button */
+    display: block;
+    background-color: var(--accent-color); /* Use accent color for submit */
+}
+.btn-submit:hover {
+    background-color: #d35400; /* Darker accent */
+}
+
+
+.booking-status {
+    max-width: 700px;
+    margin: 40px auto 0 auto;
+    padding: 25px;
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+    border-left: 5px solid var(--success-text); /* Accent border */
+    border-radius: 5px;
+    text-align: center;
+}
+.booking-status h3 {
+    color: var(--success-text);
+    margin-bottom: 15px;
+}
+
+
+/* --- Contact Section --- */
+.contact-section {
+     /* This should be white as it's an odd section unless overridden */
+      background-color: var(--light-text);
+}
+.contact-info-map-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* Adjust ratio as needed */
+    gap: 40px;
+    align-items: start; /* Align items to the top */
+    margin-top: 40px;
+}
+.contact-details {
+    /* Styles already somewhat defined, ensure text aligns left */
+    text-align: left;
+}
+.contact-details p {
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+#map-container {
+    border-radius: 8px;
+    overflow: hidden; /* Clip iframe corners */
+    box-shadow: var(--shadow-light);
+    height: 350px; /* Match iframe height initially */
+    border: 1px solid var(--border-color); /* Added subtle border */
+}
+
+#map-container iframe {
+    display: block; /* Remove potential extra space below iframe */
+    width: 100%;
+    height: 100%;
+    border: none; /* Remove iframe default border */
+}
+
+
+/* --- Footer --- */
+footer {
+    background-color: var(--primary-color);
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 60px; /* Add space before footer */
+}
+footer p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+    html { scroll-padding-top: 75px; } /* Adjust if needed */
+    body { padding-top: 68px; } /* Adjust if needed */
+
+    .hero-section h1 { font-size: 3rem; }
+    .hero-section p { font-size: 1.2rem; }
+
+    .form-grid { grid-template-columns: 1fr; } /* Stack form fields */
+    .form-group-span-2 { grid-column: span 1; } /* Reset span on smaller screens */
+    .btn-submit { grid-column: span 1; } /* Reset span */
+
+    .hall-gallery-two {
+        max-width: 100%; /* Allow full width */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust minmax */
+    }
+     .contact-info-map-grid {
+        grid-template-columns: 1fr; /* Stack contact info and map */
+        gap: 30px;
+    }
+    #map-container {
+        height: 300px; /* Adjust map height */
+    }
+}
+
+@media (max-width: 768px) {
+     html { scroll-padding-top: 65px; } /* Adjust for potentially smaller sticky header */
+     body { padding-top: 65px; }
+
+    .navbar { padding: 0.8rem 0; } /* Slightly reduce padding */
+    .navbar .container {
+        flex-direction: column;
+        align-items: center; /* Center logo and links */
+    }
+    .navbar .logo { margin-bottom: 10px; }
+
+    .navbar .nav-links {
+        margin-top: 0;
+        flex-direction: row; /* Keep horizontal on tablet */
+        justify-content: center;
+        flex-wrap: wrap; /* Allow wrapping if needed */
+    }
+    .navbar .nav-links li { margin: 5px 10px; } /* Adjust spacing */
+     /* Adjust body padding if header is taller when links stack */
+    /* Estimate stacked header height if nav links wrap significantly */
+    /* body { padding-top: 100px; } */
+    /* html { scroll-padding-top: 100px;} */
+
+
+    .hero-section { height: 65vh; }
+    .hero-section h1 { font-size: 2.5rem; }
+    .hero-section p { font-size: 1.1rem; }
+
+    section { padding: 60px 0; }
+    h2 { font-size: 1.9rem; margin-bottom: 40px; }
+
+    .hall-gallery, .hall-gallery-two {
+         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+         gap: 30px;
+    }
+    #booking-form { padding: 30px; }
+
+    .calendar-day {
+        padding: 10px 3px;
+        min-height: 60px;
+        font-size: 0.9rem;
+     }
+     .calendar-weekdays div {
+        font-size: 0.75rem;
+        padding: 8px 2px;
+     }
+     #month-year { font-size: 1.1rem; }
+     .calendar-header button { font-size: 1.3rem; }
+     #map-container {
+        height: 250px;
+     }
+}
+
+@media (max-width: 576px) {
+     html { scroll-padding-top: 60px; }
+     body { padding-top: 60px; }
+    .navbar { padding: 0.6rem 0; }
+    .navbar .container { align-items: flex-start;} /* Align logo left */
+    .navbar .logo { margin-bottom: 15px; text-align: center; width: 100%;} /* Center logo text */
+
+    .navbar .nav-links {
+         flex-direction: column;
+         align-items: stretch; /* Stretch links full width */
+         width: 100%;
+    }
+    .navbar .nav-links li { margin: 5px 0; width: 100%; }
+    .navbar .nav-links a { display: block; padding: 10px; text-align: center; background-color: rgba(255,255,255,0.05); }
+    .navbar .nav-links a:hover { background-color: rgba(255,255,255,0.15);}
+
+     /* Adjust body padding again for taller stacked mobile header */
+    body { padding-top: 230px; } /* Estimate stacked header height - ADJUST AS NEEDED */
+    html { scroll-padding-top: 230px;}
+
+
+    .hero-section { height: 60vh; }
+    .hero-section h1 { font-size: 2rem; }
+    .hero-section p { font-size: 1rem; }
+    .btn { padding: 12px 25px; font-size: 0.9rem; }
+
+    h2 { font-size: 1.7rem; }
+    .hall-gallery, .hall-gallery-two { grid-template-columns: 1fr; } /* Single column */
+    #booking-form { padding: 20px; }
+     .form-grid { grid-template-columns: 1fr; } /* Ensure single column form */
+
+     .calendar-day {
+        min-height: 50px;
+        font-size: 0.8rem;
+     }
+     .calendar-day.current-day span {
+        padding: 3px 5px;
+     }
+     #calendar-container {
+        max-width: 100%;
+     }
+      .contact-info-map-grid {
+        grid-template-columns: 1fr; /* Stack on mobile */
+    }
+}
+
+
+
+
+
+
+/* Reset hero image layout */
+
+
+
+
+
+
+
+
+
+
+/* Hall name + subtext below image */
+.hero-text-below {
+    background-color: #ffffff;
+    padding: 20px 0 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.hero-text-below h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.hero-text-below .subtitle {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* --- Hero Section & Image Carousel (Cleaned & Corrected) --- */
+.hero-section {
+    position: relative;
+    background: #fff;
+    padding: 0;
+    height: 400px;
+    overflow: hidden;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 0;
+    background-color: var(--primary-color);
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.carousel-slide img {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+}

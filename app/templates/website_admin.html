@@ -1,17 +1,42 @@
 {% extends 'base.html' %}
 {% block title %}Website Admin{% endblock %}
+
 {% block content %}
 <h1>Website Admin</h1>
 
+<a href="{{ url_for('main.create_hall_admin') }}" class="btn btn-sm btn-info">Create Hall</a>
+
 <h2>Halls</h2>
-<ul>
-  {% for hall in halls %}
-    <li><a href="{{ url_for('main.hall_detail', slug=hall.slug) }}">{{ hall.name }}</a></li>
-  {% endfor %}
-</ul>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Hall Name</th>
+      <th>Admin Name</th>
+      <th>Reset Password</th>
+      <th>Edit</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for hall in halls %}
+      <tr>
+        <td><a href="{{ url_for('main.hall_detail', slug=hall.slug) }}">{{ hall.name }}</a></td>
+        <td>{{ hall.admin_name }}</td>
+        <td>
+          <form action="{{ url_for('main.reset_hall_password', hall_id=hall.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-warning">Reset Password</button>
+          </form>
+        </td>
+        <td>
+          <a href="{{ url_for('main.website_admin_edit_hall', hall_id=hall.id) }}" class="btn btn-sm btn-info">Edit</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 <h2>Logs</h2>
 
+<!-- Hall Logs -->
 <div>
   <h3>Hall Logs</h3>
   <label for="hallSelect">Select Hall:</label>
@@ -21,6 +46,7 @@
       <option value="{{ hall.id }}">{{ hall.name }}</option>
     {% endfor %}
   </select>
+
   <table class="table table-bordered" id="hallLogsTable">
     <thead>
       <tr>
@@ -31,7 +57,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for log in logs %}
+      {% for log in hall_logs %}
         <tr data-hall-id="{{ log.hall_id }}">
           <td>{{ log.timestamp }}</td>
           <td>{{ log.username }}</td>
@@ -41,8 +67,32 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <!-- Hall Logs Pagination -->
+  <ul class="pagination">
+    {% if hall_pagination.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('main.website_admin', hall_page=hall_pagination.prev_num, user_page=user_pagination.page) }}">&laquo; Prev</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">Page {{ hall_pagination.page }} of {{ hall_pagination.pages }}</span>
+    </li>
+
+    {% if hall_pagination.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('main.website_admin', hall_page=hall_pagination.next_num, user_page=user_pagination.page) }}">Next &raquo;</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+    {% endif %}
+  </ul>
 </div>
 
+<!-- User Logs -->
 <div>
   <h3>User Logs</h3>
   <label for="userSelect">Select User:</label>
@@ -52,6 +102,7 @@
       <option value="{{ user.id }}">{{ user.username }}</option>
     {% endfor %}
   </select>
+
   <table class="table table-bordered" id="userLogsTable">
     <thead>
       <tr>
@@ -62,7 +113,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for log in logs %}
+      {% for log in user_logs %}
         <tr data-user-id="{{ log.user_id }}">
           <td>{{ log.timestamp }}</td>
           <td>{{ log.username }}</td>
@@ -72,6 +123,29 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <!-- User Logs Pagination -->
+  <ul class="pagination">
+    {% if user_pagination.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('main.website_admin', user_page=user_pagination.prev_num, hall_page=hall_pagination.page) }}">&laquo; Prev</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">Page {{ user_pagination.page }} of {{ user_pagination.pages }}</span>
+    </li>
+
+    {% if user_pagination.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('main.website_admin', user_page=user_pagination.next_num, hall_page=hall_pagination.page) }}">Next &raquo;</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+    {% endif %}
+  </ul>
 </div>
 {% endblock %}
 
@@ -79,25 +153,18 @@
 {{ super() }}
 <script>
 document.getElementById('hallSelect').addEventListener('change', function(){
-    var selected = this.value;
-    var rows = document.querySelectorAll('#hallLogsTable tbody tr');
-    rows.forEach(function(row){
-        if(selected === 'all' || row.getAttribute('data-hall-id') === selected){
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+    const selected = this.value;
+    const rows = document.querySelectorAll('#hallLogsTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = (selected === 'all' || row.getAttribute('data-hall-id') === selected) ? '' : 'none';
     });
 });
+
 document.getElementById('userSelect').addEventListener('change', function(){
-    var selected = this.value;
-    var rows = document.querySelectorAll('#userLogsTable tbody tr');
-    rows.forEach(function(row){
-        if(selected === 'all' || row.getAttribute('data-user-id') === selected){
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+    const selected = this.value;
+    const rows = document.querySelectorAll('#userLogsTable tbody tr');
+    rows.forEach(row => {
+        row.style.display = (selected === 'all' || row.getAttribute('data-user-id') === selected) ? '' : 'none';
     });
 });
 </script>

@@ -1,165 +1,233 @@
-{% extends 'base.html' %}
-{% block title %}{{ hall.name }} Details{% endblock %}
-{% block navbar %}{{ hall.name }}{% endblock %}
-{% block head %}
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" crossorigin=""/>
-{% endblock %}
-{% block content %}
-<!-- Carousel for pictures -->
-<div id="hallCarousel" class="carousel slide" data-ride="carousel">
-  <div class="carousel-inner">
-    {% for pic in pictures %}
-      <div class="carousel-item {% if loop.first %}active{% endif %}">
-        <img src="{{ url_for('static', filename='uploads/halls/' ~ pic) }}" class="d-block w-100 hall-carousel-image" alt="Hall image">
-      </div>
-    {% endfor %}
-  </div>
-  <a class="carousel-control-prev" href="#hallCarousel" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-  </a>
-  <a class="carousel-control-next" href="#hallCarousel" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-  </a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ hall.name }} - Book Now</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-<!-- Button to go to booking page -->
-<div class="mt-3">
-  <a href="{{ url_for('main.book_hall', slug=hall.slug) }}" class="btn btn-primary">Book This Hall</a>
-</div>
+<header>
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{ url_for('main.index') }}" class="logo">Grand Halls</a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#availability">Availability</a></li>
+                <li><a href="#booking">Book Now</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
 
-<!-- Small map showing hall location -->
-<div id="smallMap" class="mt-3"></div>
+<main>
+    <!-- Hero Image Carousel -->
+    <section id="hero" class="hero-section">
+        <div id="image-carousel" class="carousel-container">
+            {% for pic in pictures %}
+                <div class="carousel-slide{% if loop.first %} active{% endif %}">
+                    <img src="{{ url_for('static', filename='uploads/halls/' ~ pic) }}" alt="Hall Image">
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 
-<!-- Tabs for Morning and Evening details -->
-<ul class="nav nav-tabs mt-4" id="timeTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="morning-tab" data-toggle="tab" href="#morning" role="tab">Morning</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="evening-tab" data-toggle="tab" href="#evening" role="tab">Evening</a>
-  </li>
-</ul>
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="morning" role="tabpanel">
-    <h3 class="mt-3">Description</h3>
-    <p>{{ morning_description }}</p>
-    <h4>Highlights</h4>
+    <!-- Title + Subtext -->
+    <section class="hero-text-below">
+        <div class="container text-center">
+            <h1>{{ hall.name }}</h1>
+            <p class="subtitle">Elegant venue available for your events — morning or evening.</p>
+        </div>
+    </section>
+
+    <!-- Hall Details -->
+    <section class="halls-section">
+        <div class="container">
+            <div class="hall-gallery hall-gallery-two">
+                <article class="hall-item">
+                    <div class="hall-content">
+                        <h3>Morning</h3>
+                        <p>{{ morning_description }}</p>
+                        <h4>Highlights</h4>
+                        <ul>{% for h in morning_highlights %}<li>{{ h }}</li>{% endfor %}</ul>
+                        <h4>Discounts</h4>
+                        <ul>{% for d in morning_discount %}<li>{{ d }}</li>{% endfor %}</ul>
+                        <h4>Pricing</h4>
+                        <ul>{% for p in morning_pricing %}<li>{{ p }}</li>{% endfor %}</ul>
+                    </div>
+                </article>
+                <article class="hall-item">
+                    <div class="hall-content">
+                        <h3>Evening</h3>
+                        <p>{{ evening_description }}</p>
+                        <h4>Highlights</h4>
+                        <ul>{% for h in evening_highlights %}<li>{{ h }}</li>{% endfor %}</ul>
+                        <h4>Discounts</h4>
+                        <ul>{% for d in evening_discount %}<li>{{ d }}</li>{% endfor %}</ul>
+                        <h4>Pricing</h4>
+                        <ul>{% for p in evening_pricing %}<li>{{ p }}</li>{% endfor %}</ul>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
     <ul>
-      {% for hl in morning_highlights %}
-        <li>{{ hl }}</li>
+      {% for pic in pictures %}
+          <li>{{ pic }}</li>
       {% endfor %}
     </ul>
-    <h4>Discount</h4>
-    <p>{{ morning_discount }}</p>
-    <h4>Availability & Pricing (Morning)</h4>
-    <div id="morning-calendar-container"></div>
-    <div class="calendar-nav mt-2">
-      <button id="morning-prev" class="btn btn-secondary">&larr; Previous</button>
-      <span id="morning-current" class="mx-2"></span>
-      <button id="morning-next" class="btn btn-secondary">Next &rarr;</button>
+
+    <!-- Availability -->
+<!-- Availability Calendar (Dropdown + Single Styled Calendar) -->
+  <section id="availability" class="availability-section">
+    <div class="container">
+        <h2>Check Hall Availability</h2>
+        <div class="calendar-controls">
+            <label for="calendar-hall-select">Select Hall:</label>
+            <select id="calendar-hall-select">
+                <option value="Morning Hall">Morning Hall</option>
+                <option value="Evening Hall">Evening Hall</option>
+            </select>
+        </div>
+        <div id="calendar-container">
+            <!-- Dynamic calendar gets rendered here -->
+        </div>
     </div>
-  </div>
-  <div class="tab-pane fade" id="evening" role="tabpanel">
-    <h3 class="mt-3">Description</h3>
-    <p>{{ evening_description }}</p>
-    <h4>Highlights</h4>
-    <ul>
-      {% for hl in evening_highlights %}
-        <li>{{ hl }}</li>
-      {% endfor %}
-    </ul>
-    <h4>Discount</h4>
-    <p>{{ evening_discount }}</p>
-    <h4>Availability & Pricing (Evening)</h4>
-    <div id="evening-calendar-container"></div>
-    <div class="calendar-nav mt-2">
-      <button id="evening-prev" class="btn btn-secondary">&larr; Previous</button>
-      <span id="evening-current" class="mx-2"></span>
-      <button id="evening-next" class="btn btn-secondary">Next &rarr;</button>
-    </div>
-  </div>
-</div>
-{% endblock %}
-{% block scripts %}
-{{ super() }}
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" crossorigin=""></script>
+  </section>
+
+
+    <!-- Booking Form -->
+    <section id="booking" class="booking-section">
+        <div class="container">
+            <h2>Request Your Booking</h2>
+            <form method="post" id="booking-form">
+                {{ form.hidden_tag() }}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="booking-date">Date</label>
+                        {{ form.booking_date(class="form-control") }}
+                        {% for error in form.booking_date.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="time_slot">Time Slot</label>
+                        {{ form.time_slot(class="form-control") }}
+                        {% for error in form.time_slot.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group form-group-span-2">
+                        <label for="user_name">Your Name</label>
+                        {{ form.user_name(class="form-control") }}
+                        {% for error in form.user_name.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit">Submit Request</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>Contact Information</h2>
+            <div class="contact-info-map-grid">
+                <div class="contact-details">
+                    <p><strong>Email:</strong> {{ hall.email }}</p>
+                    <p><strong>Phone:</strong> {{ hall.phone }}</p>
+                    <p><strong>Location:</strong><br>Latitude: {{ hall.latitude }}<br>Longitude: {{ hall.longitude }}</p>
+                </div>
+                <div id="map-container">
+                    <iframe
+                        src="https://maps.google.com/maps?q={{ hall.latitude }},{{ hall.longitude }}&z=15&output=embed"
+                        allowfullscreen
+                        loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 <script>
-  // Initialize small map (200x200)
-  var smallMap = L.map('smallMap', { zoomControl: false, attributionControl: false }).setView([{{ hall.latitude }}, {{ hall.longitude }}], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(smallMap);
-  L.marker([{{ hall.latitude }}, {{ hall.longitude }}]).addTo(smallMap);
-</script>
-<script>
-  // Calendar data passed from server (12 months for each timeslot)
-  var morningCalendars = {{ calendars.morning | tojson | safe }};
-  var eveningCalendars = {{ calendars.evening | tojson | safe }};
-  
-  var currentMorningIndex = 0;
-  var currentEveningIndex = 0;
-  
-  function renderCalendar(calData) {
-    var monthStr = calData.month < 10 ? "0" + calData.month : calData.month;
-    var html = "<h5>" + calData.year + "-" + monthStr + "</h5>";
-    html += '<table class="table table-sm table-bordered"><thead><tr>';
-    html += "<th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>";
-    html += "</tr></thead><tbody>";
-    for (var i = 0; i < calData.weeks.length; i++) {
-      html += "<tr>";
-      for (var j = 0; j < calData.weeks[i].length; j++) {
-        var day = calData.weeks[i][j];
-        if (day) {
-          html += '<td style="background-color: ' + day.status + ';">' + day.day + '<br><small>' + '66' + '</small></td>';
-        } else {
-          html += "<td></td>";
+    const morningCalendars = {{ calendars.morning | tojson | safe }};
+    const eveningCalendars = {{ calendars.evening | tojson | safe }};
+    let currentMorningIndex = 0;
+    let currentEveningIndex = 0;
+
+    function renderCalendar(calData) {
+        const monthStr = calData.month < 10 ? "0" + calData.month : calData.month;
+        let html = `<h5>${calData.year}-${monthStr}</h5>`;
+        html += '<table class="table table-sm table-bordered"><thead><tr>';
+        html += "<th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>";
+        html += "</tr></thead><tbody>";
+        for (let week of calData.weeks) {
+            html += "<tr>";
+            for (let day of week) {
+                html += day ? `<td style="background-color: ${day.status};">${day.day}</td>` : "<td></td>";
+            }
+            html += "</tr>";
         }
-      }
-      html += "</tr>";
+        html += "</tbody></table>";
+        return html;
     }
-    html += "</tbody></table>";
-    return html;
-  }
-  
-  function updateMorningCalendar() {
-    var calData = morningCalendars[currentMorningIndex];
-    document.getElementById('morning-calendar-container').innerHTML = renderCalendar(calData);
-    var monthStr = calData.month < 10 ? "0" + calData.month : calData.month;
-    document.getElementById('morning-current').innerText = calData.year + "-" + monthStr;
-  }
-  
-  function updateEveningCalendar() {
-    var calData = eveningCalendars[currentEveningIndex];
-    document.getElementById('evening-calendar-container').innerHTML = renderCalendar(calData);
-    var monthStr = calData.month < 10 ? "0" + calData.month : calData.month;
-    document.getElementById('evening-current').innerText = calData.year + "-" + monthStr;
-  }
-  
-  document.getElementById('morning-prev').addEventListener('click', function() {
-    if (currentMorningIndex > 0) {
-      currentMorningIndex--;
-      updateMorningCalendar();
+
+    function updateMorningCalendar() {
+        const cal = morningCalendars[currentMorningIndex];
+        document.getElementById('morning-calendar-container').innerHTML = renderCalendar(cal);
+        document.getElementById('morning-current').innerText = `${cal.year}-${String(cal.month).padStart(2, '0')}`;
     }
-  });
-  document.getElementById('morning-next').addEventListener('click', function() {
-    if (currentMorningIndex < morningCalendars.length - 1) {
-      currentMorningIndex++;
-      updateMorningCalendar();
+
+    function updateEveningCalendar() {
+        const cal = eveningCalendars[currentEveningIndex];
+        document.getElementById('evening-calendar-container').innerHTML = renderCalendar(cal);
+        document.getElementById('evening-current').innerText = `${cal.year}-${String(cal.month).padStart(2, '0')}`;
     }
-  });
-  document.getElementById('evening-prev').addEventListener('click', function() {
-    if (currentEveningIndex > 0) {
-      currentEveningIndex--;
-      updateEveningCalendar();
-    }
-  });
-  document.getElementById('evening-next').addEventListener('click', function() {
-    if (currentEveningIndex < eveningCalendars.length - 1) {
-      currentEveningIndex++;
-      updateEveningCalendar();
-    }
-  });
-  
-  // Initialize calendars on page load
-  updateMorningCalendar();
-  updateEveningCalendar();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateMorningCalendar();
+        updateEveningCalendar();
+
+        document.getElementById('morning-prev').onclick = () => {
+            if (currentMorningIndex > 0) {
+                currentMorningIndex--;
+                updateMorningCalendar();
+            }
+        };
+        document.getElementById('morning-next').onclick = () => {
+            if (currentMorningIndex < morningCalendars.length - 1) {
+                currentMorningIndex++;
+                updateMorningCalendar();
+            }
+        };
+        document.getElementById('evening-prev').onclick = () => {
+            if (currentEveningIndex > 0) {
+                currentEveningIndex--;
+                updateEveningCalendar();
+            }
+        };
+        document.getElementById('evening-next').onclick = () => {
+            if (currentEveningIndex < eveningCalendars.length - 1) {
+                currentEveningIndex++;
+                updateEveningCalendar();
+            }
+        };
+    });
 </script>
-{% endblock %}
+
+<script>
+  const calendarData = {
+      "Morning Hall": {{ calendars.morning | tojson | safe }},
+      "Evening Hall": {{ calendars.evening | tojson | safe }}
+  };
+</script>
+
+</body>
+</html>

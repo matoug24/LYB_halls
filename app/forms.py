@@ -5,16 +5,16 @@ from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_wtf.file import MultipleFileField, FileAllowed
 
 def validate_password_strength(password):
-    if len(password) < 8:
+    if len(password) < 5:
         raise ValidationError("Password must be at least 8 characters long.")
-    if not re.search(r'[A-Z]', password):
-        raise ValidationError("Password must contain an uppercase letter.")
-    if not re.search(r'[a-z]', password):
-        raise ValidationError("Password must contain a lowercase letter.")
-    if not re.search(r'\d', password):
-        raise ValidationError("Password must contain a digit.")
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        raise ValidationError("Password must contain a special character.")
+    # if not re.search(r'[A-Z]', password):
+    #     raise ValidationError("Password must contain an uppercase letter.")
+    # if not re.search(r'[a-z]', password):
+    #     raise ValidationError("Password must contain a lowercase letter.")
+    # if not re.search(r'\d', password):
+    #     raise ValidationError("Password must contain a digit.")
+    # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+    #     raise ValidationError("Password must contain a special character.")
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=50)])
@@ -24,14 +24,16 @@ class LoginForm(FlaskForm):
 class CreateHallForm(FlaskForm):
     name = StringField('Hall Name', validators=[DataRequired(), Length(min=2, max=100)])
     slug = StringField('Hall Slug', validators=[DataRequired(), Length(min=2, max=100)])
+    admin_name = StringField('Admin Name', validators=[DataRequired(), Length(min=2, max=100)])
+    admin_phone = StringField('Admin Phone', validators=[DataRequired()])
     morning_description = TextAreaField('Morning Description', validators=[DataRequired()])
     evening_description = TextAreaField('Evening Description', validators=[DataRequired()])
     morning_highlights = TextAreaField('Morning Highlights (comma separated)', validators=[DataRequired()])
     evening_highlights = TextAreaField('Evening Highlights (comma separated)', validators=[DataRequired()])
     morning_discount = TextAreaField('Morning Discount Info', validators=[DataRequired()])
     evening_discount = TextAreaField('Evening Discount Info', validators=[DataRequired()])
-    # morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
-    # evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])  # Hidden field filled by JS
+    morning_pricing = TextAreaField('Morning Pricing')
+    evening_pricing = TextAreaField('Evening Pricing')
     instructions = TextAreaField('Instructions (displayed after booking)', validators=[DataRequired()])
     phone = StringField('Contact Phone', validators=[DataRequired()])
     email = StringField('Contact Email', validators=[DataRequired()])
@@ -42,15 +44,16 @@ class CreateHallForm(FlaskForm):
 
 class EditHallForm(FlaskForm):
     name = StringField('Hall Name', validators=[DataRequired(), Length(min=2, max=100)])
-    slug = StringField('Hall Slug', validators=[DataRequired(), Length(min=2, max=100)])
+    admin_name = StringField('Admin Name', validators=[DataRequired(), Length(min=2, max=100)])
+    admin_phone = StringField('Admin Phone', validators=[DataRequired()])
     morning_description = TextAreaField('Morning Description', validators=[DataRequired()])
     evening_description = TextAreaField('Evening Description', validators=[DataRequired()])
     morning_highlights = TextAreaField('Morning Highlights (comma separated)', validators=[DataRequired()])
     evening_highlights = TextAreaField('Evening Highlights (comma separated)', validators=[DataRequired()])
     morning_discount = TextAreaField('Morning Discount Info', validators=[DataRequired()])
     evening_discount = TextAreaField('Evening Discount Info', validators=[DataRequired()])
-    # morning_pricing = TextAreaField('Morning Pricing', validators=[DataRequired()])  # Hidden field filled by JS
-    # evening_pricing = TextAreaField('Evening Pricing', validators=[DataRequired()])
+    morning_pricing = TextAreaField('Morning Pricing')
+    evening_pricing = TextAreaField('Evening Pricing')
     instructions = TextAreaField('Instructions (displayed after booking)', validators=[DataRequired()])
     phone = StringField('Contact Phone', validators=[DataRequired()])
     email = StringField('Contact Email', validators=[DataRequired()])
